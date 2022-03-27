@@ -69,7 +69,7 @@ def check_if_move_is_possible(current_node, move):
             return False
         elif move == dirs[7]:
             return False
-    elif current_node % 8 == 7:
+    if current_node % 8 == 7:
         if move == dirs[1]:
             return False
         elif move == dirs[2]:
@@ -78,7 +78,7 @@ def check_if_move_is_possible(current_node, move):
             return False
         elif move == dirs[4]:
             return False
-    elif int(current_node / 8) == 0:
+    if int(current_node / 8) == 0:
         if move == dirs[0]:
             return False
         elif move == dirs[1]:
@@ -87,7 +87,7 @@ def check_if_move_is_possible(current_node, move):
             return False
         elif move == dirs[7]:
             return False
-    elif int(current_node / 8) == 7:
+    if int(current_node / 8) == 7:
         if move == dirs[3]:
             return False
         elif move == dirs[4]:
@@ -96,22 +96,22 @@ def check_if_move_is_possible(current_node, move):
             return False
         elif move == dirs[6]:
             return False
-    elif current_node % 8 == 1:
+    if current_node % 8 == 1:
         if move == dirs[6]:
             return False
         elif move == dirs[7]:
             return False
-    elif current_node % 8 == 6:
+    if current_node % 8 == 6:
         if move == dirs[2]:
             return False
         elif move == dirs[3]:
             return False
-    elif int(current_node / 8) == 1:
+    if int(current_node / 8) == 1:
         if move == dirs[0]:
             return False
         elif move == dirs[1]:
             return False
-    elif int(current_node / 8) == 6:
+    if int(current_node / 8) == 6:
         if move == dirs[4]:
             return False
         elif move == dirs[5]:
@@ -124,6 +124,7 @@ def bfs(graph, start_node, end_node):
     my_queue = deque()
     my_queue.append(start_node)
     visited = set()
+    visited_dict = dict()
     while my_queue:
         current_node = my_queue.popleft()
         visited.add(current_node)
@@ -134,40 +135,27 @@ def bfs(graph, start_node, end_node):
                 if current_node + dirs[i] not in visited and -1 < current_node + dirs[i] < len(graph)\
                         and current_node + dirs[i] not in bad_pos:
                     my_queue.append(current_node+dirs[i])
-    return visited
+                    visited_dict.setdefault(current_node + dirs[i], current_node)
+    return visited_dict
 
 
-def find_route(visited: set, start_node, end_node):
+def find_route(visited: dict, start_node, end_node):
     route = list()
     route.append(end_node)
     current_node = end_node
-    while start_node not in route:
-        visited.discard(current_node)
-        for i in range(8):
-            next_node = current_node + dirs[7 - i]
-            if next_node in visited:
-                route.append(next_node)
-                current_node = next_node
-                break
-            if i == 7:
-                route.pop()
-                visited.update(route)
-                route.clear()
-                route.append(end_node)
-                current_node = end_node
+    while True:
+        if current_node == start_node:
+            break
+        route.append(visited[current_node])
+        current_node = visited[current_node]
     return route
 
 
 def write_route_to_file(filename, route):
     with open(filename, 'w') as f:
-        j = '1'
-        for i in range(len(route) - 1):
-            turn_type = '—'
-            if i == len(route) - 2:
-                turn_type = 'x'
-            line = j + '. К' + convert_index_to_node(route[len(route) - i - 1]) + turn_type + convert_index_to_node(route[len(route) - i - 2]) + '\n'
+        for i in range(len(route)):
+            line = convert_index_to_node(route[len(route) - i - 1]) + '\n'
             f.write(line)
-            j = str(int(j) + 1)
 
 
 with open('testLab1.txt') as f:

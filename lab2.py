@@ -10,26 +10,40 @@ def read_matrix(my_dict, filename):
             for j in range(n):
                 if tmp_str[j] == '1':
                     my_dict[i+1].append(j+1)
-    print(my_dict)
 
 
-def restore_cycle(route, node):
-    pass
+queue = collections.deque()
 
 
-def dfs(graph, visited, node):
-    queue = list()
-    queue.append(node)
-    while queue:
-        curr_node = queue.pop(0)
-        for neighbour in graph[curr_node]:
-            if neighbour not in queue and neighbour not in visited:
-                queue.append(neighbour)
-        visited.append(curr_node)
+def dfs(graph, visited, node, parent):
+    visited.append(node)
+    for neighbor in graph[node]:
+        if neighbor != parent:
+            queue.append(neighbor)
+        if neighbor in visited and not neighbor == parent:
+            cycle_end = neighbor
+            queue.pop()
+            cycle = list()
+            while True:
+                cycle_elem = queue.pop()
+                cycle.append(cycle_elem)
+                if cycle_elem == cycle_end:
+                    break
+            cycle.sort()
+            with open('testLab2Result.txt', 'w') as f:
+                f.write('N\n')
+                for node in cycle:
+                    f.write(str(node) + ' ')
+            exit(0)
+        elif neighbor not in visited:
+            dfs(graph, visited, neighbor, node)
 
 
 my_dict = collections.defaultdict(list)
 read_matrix(my_dict, 'testLab2.txt')
 visited = list()
-dfs(my_dict, visited, 1)
-print(visited)
+queue.append(1)
+with open('testLab2Result.txt', 'w') as f:
+    f.write('A')
+dfs(my_dict, visited, 1, None)
+

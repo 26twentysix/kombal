@@ -9,26 +9,64 @@ class Edge:
         self.e_len = e_len
 
 
-edges_list = list()
-
-
 def read_input():
     with open('testLab3.txt') as file:
+        edges_list = list()
         flines = file.readlines()
         n = int(flines.pop(0))
         for i in range(n):
             curr_line = flines[i]
             curr_line_ints = list(map(int, curr_line.split()))
-            a = i + 1
+            a = i
             while True:
-                b = curr_line_ints.pop(0)
-                if b != 0:
+                b = curr_line_ints.pop(0) - 1
+                if b != -1:
                     e_len = curr_line_ints.pop(0)
                     edge = Edge(a, b, e_len)
                     edges_list.append(edge)
                 else:
                     break
+            start_pos = int(flines[n]) - 1
+            end_pos = int(flines[n + 1]) - 1
+        return [edges_list, n, start_pos, end_pos]
 
-read_input()
-for edge in edges_list:
-    print(str(edge.a) + ' ' + str(edge.b) + ' ' + str(edge.e_len))
+
+def ford_bellman(edges_list, n, start_pos, end_pos):
+    shortest_path = [float('inf')] * n
+    shortest_path[start_pos] = 0
+    nearest_vertex = [-1] * n
+    path = list()
+    while True:
+        flag = False
+        for i in range(len(edges_list)):
+            if shortest_path[edges_list[i].a] < float('inf'):
+                if shortest_path[edges_list[i].b] > shortest_path[edges_list[i].a] + edges_list[i].e_len:
+                    shortest_path[edges_list[i].b] = shortest_path[edges_list[i].a] + edges_list[i].e_len
+                    nearest_vertex[edges_list[i].b] = edges_list[i].a
+                    flag = True
+        if not flag:
+            break
+    cur = nearest_vertex[end_pos]
+    if shortest_path[end_pos] == float('inf'):
+        return [float('inf'), -1]
+    path.append(end_pos + 1)
+    while cur != -1:
+        path.append(cur + 1)
+        cur = nearest_vertex[cur]
+    path.reverse()
+    return [shortest_path[end_pos], path]
+
+
+def create_output(path_weight, path):
+    with open('testLab3Result.txt', 'w') as file:
+        if path_weight == float('inf'):
+            file.write('N')
+        else:
+            file.write('Y\n')
+            file.write(str(path)[1:-1].replace(',', '') + '\n')
+            file.write(str(path_weight))
+
+
+input_params = read_input()
+f_b_params = ford_bellman(input_params[0], input_params[1], input_params[2], input_params[3])
+create_output(f_b_params[0], f_b_params[1])

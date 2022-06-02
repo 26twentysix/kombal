@@ -32,34 +32,34 @@ def read_input():
 
 
 def ford_bellman(edges_list, n, start_pos, end_pos):
-    shortest_path = [float('inf')] * n
-    shortest_path[start_pos] = 0
-    nearest_vertex = [-1] * n
+    longest_path = [-1] * n
+    longest_path[start_pos] = 1
+    farest_vertex = [-1] * n
     path = list()
     while True:
         flag = False
         for i in range(len(edges_list)):
-            if shortest_path[edges_list[i].a] < float('inf'):
-                if shortest_path[edges_list[i].b] > shortest_path[edges_list[i].a] + edges_list[i].e_len:
-                    shortest_path[edges_list[i].b] = shortest_path[edges_list[i].a] + edges_list[i].e_len
-                    nearest_vertex[edges_list[i].b] = edges_list[i].a
+            if longest_path[edges_list[i].a] > -1:
+                if longest_path[edges_list[i].b] < longest_path[edges_list[i].a] * edges_list[i].e_len:
+                    longest_path[edges_list[i].b] = longest_path[edges_list[i].a] * edges_list[i].e_len
+                    farest_vertex[edges_list[i].b] = edges_list[i].a
                     flag = True
         if not flag:
             break
-    cur = nearest_vertex[end_pos]
-    if shortest_path[end_pos] == float('inf'):
-        return [float('inf'), -1]
+    cur = farest_vertex[end_pos]
+    if longest_path[end_pos] == -1:
+        return [-1, -1]
     path.append(end_pos + 1)
     while cur != -1:
         path.append(cur + 1)
-        cur = nearest_vertex[cur]
+        cur = farest_vertex[cur]
     path.reverse()
-    return [shortest_path[end_pos], path]
+    return [longest_path[end_pos], path]
 
 
 def create_output(path_weight, path):
     with open('testLab3Result.txt', 'w') as file:
-        if path_weight == float('inf'):
+        if path_weight == -1:
             file.write('N')
         else:
             file.write('Y\n')
